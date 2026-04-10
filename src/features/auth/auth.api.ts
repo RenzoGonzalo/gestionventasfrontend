@@ -10,13 +10,13 @@ import {
 
 export async function loginAdmin(input: LoginRequest): Promise<LoginResponse> {
   const payload = loginRequestSchema.parse(input);
-  const res = await api.post("/auth/login", payload);
+  const res = await api.post("/api/auth/login", payload);
   return loginResponseSchema.parse(res.data);
 }
 
 export async function loginSeller(input: SellerCodeLoginRequest): Promise<LoginResponse> {
   const payload = sellerCodeLoginRequestSchema.parse(input);
-  const res = await api.post("/auth/seller-login", payload);
+  const res = await api.post("/api/auth/seller-login", payload);
   return loginResponseSchema.parse(res.data);
 }
 
