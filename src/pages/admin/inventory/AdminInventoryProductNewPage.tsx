@@ -33,17 +33,17 @@ export function AdminInventoryProductNewPage() {
   const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data]);
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5">
       <div>
         <Link to=".." relative="path" className="text-base font-semibold text-slate-700 underline">
-          ← Volver a productos
+          Volver a productos
         </Link>
       </div>
 
-      <Card className="p-5">
-        <CardTitle>Nuevo producto</CardTitle>
-        <CardDescription className="mt-2">
-          Completa estos datos primero. Las variantes y el stock se agregan despues, dentro del producto.
+      <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
+        <CardTitle className="text-2xl text-slate-900">Nuevo producto</CardTitle>
+        <CardDescription className="mt-2 text-base">
+          Primero crea el producto. Luego podras agregar tipos, medidas y stock dentro de su ficha.
         </CardDescription>
 
         <div className="mt-5 grid gap-4">
@@ -55,9 +55,9 @@ export function AdminInventoryProductNewPage() {
               onChange={(e) => setProdCategoryId(e.target.value)}
             >
               <option value="">Selecciona una categoria...</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nombre}
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.nombre}
                 </option>
               ))}
             </select>
@@ -69,7 +69,7 @@ export function AdminInventoryProductNewPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-base font-semibold text-slate-700">Descripcion (opcional)</label>
+            <label className="mb-2 block text-base font-semibold text-slate-700">Descripcion</label>
             <Input value={prodDesc} onChange={(e) => setProdDesc(e.target.value)} placeholder="Ej: Clavos galvanizados" />
           </div>
 
@@ -80,9 +80,9 @@ export function AdminInventoryProductNewPage() {
               value={prodUnitType}
               onChange={(e) => setProdUnitType(e.target.value as any)}
             >
-              {UNIT_TYPES.map((u) => (
-                <option key={u.value} value={u.value}>
-                  {u.label}
+              {UNIT_TYPES.map((unit) => (
+                <option key={unit.value} value={unit.value}>
+                  {unit.label}
                 </option>
               ))}
             </select>
@@ -104,8 +104,9 @@ export function AdminInventoryProductNewPage() {
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Button
+              size="lg"
               disabled={createProductMutation.isPending || !prodCategoryId || !prodNombre}
               onClick={() =>
                 createProductMutation.mutate({
@@ -121,8 +122,8 @@ export function AdminInventoryProductNewPage() {
             >
               {createProductMutation.isPending ? "Creando..." : "Guardar y abrir producto"}
             </Button>
-            <Button variant="secondary" onClick={() => navigate("..", { relative: "path" })}>
-              Cancelar
+            <Button size="lg" variant="secondary" onClick={() => navigate("..", { relative: "path" })}>
+              Volver
             </Button>
           </div>
         </div>

@@ -4,12 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
 import { Card, CardDescription, CardTitle } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
-import {
-  deleteProduct,
-  listCategories,
-  listProducts,
-  updateProduct
-} from "../../../features/inventory/inventory.api";
+import { deleteProduct, listCategories, listProducts, updateProduct } from "../../../features/inventory/inventory.api";
 import type { Category } from "../../../features/inventory/inventory.types";
 import { apiMessage, UNIT_TYPES, type UnitTypeValue } from "./inventory.ui";
 
@@ -55,69 +50,78 @@ export function AdminInventoryProductsPage() {
 
   const categoryById = useMemo(() => {
     const map = new Map<string, Category>();
-    for (const c of categories) map.set(c.id, c);
+    for (const category of categories) map.set(category.id, category);
     return map;
   }, [categories]);
 
   return (
-    <div className="grid gap-4">
-      <Card>
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="grid gap-5">
+      <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle>Productos</CardTitle>
-            <CardDescription className="mt-1">
-              Primero elige o crea un producto. Luego entra para manejar sus variantes y su stock.
+            <CardTitle className="text-2xl text-slate-900">Productos</CardTitle>
+            <CardDescription className="mt-2 text-base">
+              Elige un producto para ver sus tipos, medidas y stock. Si hace falta, crea uno nuevo.
             </CardDescription>
           </div>
 
-          <Button size="md" onClick={() => navigate("new", { relative: "path" })}>
+          <Button size="lg" onClick={() => navigate("new", { relative: "path" })}>
             Nuevo producto
           </Button>
         </div>
       </Card>
 
       {productsQuery.isLoading ? <div className="text-slate-600">Cargando productos...</div> : null}
-      {productsQuery.isError ? <div className="rounded-xl bg-red-50 p-4 text-red-700">No se pudo cargar.</div> : null}
+      {productsQuery.isError ? <div className="rounded-2xl bg-red-50 p-4 text-red-700">No se pudo cargar.</div> : null}
 
       {products.length ? (
         <div className="grid gap-4">
-          {products.map((p) => (
-            <Card key={p.id} className="p-5">
+          {products.map((product) => (
+            <Card key={product.id} className="rounded-3xl border-slate-100 p-5 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
-                  <div className="text-2xl font-extrabold text-slate-900">{p.nombre}</div>
-                  {p.descripcion ? <div className="mt-2 text-base text-slate-600">{p.descripcion}</div> : null}
-                  <div className="mt-3 text-sm text-slate-500">
-                    {p.activo ? "Activo" : "Inactivo"} · Unidad: {p.unitType}
-                    {categoryById.get(p.categoryId)?.nombre ? ` · Categoria: ${categoryById.get(p.categoryId)?.nombre}` : ""}
+                  <div className="text-2xl font-extrabold text-slate-900">{product.nombre}</div>
+                  {product.descripcion ? <div className="mt-2 text-base text-slate-600">{product.descripcion}</div> : null}
+                  <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
+                      {product.activo ? "Activo" : "Inactivo"}
+                    </span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
+                      Unidad: {product.unitType}
+                    </span>
+                    {categoryById.get(product.categoryId)?.nombre ? (
+                      <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
+                        Categoria: {categoryById.get(product.categoryId)?.nombre}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-3 lg:w-[360px] lg:grid-cols-1">
-                  <Button size="md" onClick={() => navigate(`${p.id}`, { relative: "path" })}>
+                  <Button size="lg" onClick={() => navigate(`${product.id}`, { relative: "path" })}>
                     Abrir producto
                   </Button>
                   <Button
-                    size="md"
+                    size="lg"
                     variant="secondary"
                     onClick={() => {
-                      setEditingProductId(p.id);
-                      setEditProdCategoryId(p.categoryId);
-                      setEditProdNombre(p.nombre);
-                      setEditProdDesc(p.descripcion ?? "");
-                      setEditProdUnitType(p.unitType as any);
-                      setEditProdActivo(!!p.activo);
+                      setEditingProductId(product.id);
+                      setEditProdCategoryId(product.categoryId);
+                      setEditProdNombre(product.nombre);
+                      setEditProdDesc(product.descripcion ?? "");
+                      setEditProdUnitType(product.unitType as any);
+                      setEditProdActivo(!!product.activo);
                     }}
                   >
                     Editar
                   </Button>
                   <Button
-                    size="md"
+                    size="lg"
                     variant="danger"
                     disabled={deleteProductMutation.isPending}
                     onClick={() => {
-                      if (!window.confirm("¿Eliminar este producto?")) return;
-                      deleteProductMutation.mutate(p.id);
+                      if (!window.confirm("Eliminar este producto?")) return;
+                      deleteProductMutation.mutate(product.id);
                     }}
                   >
                     Eliminar
@@ -125,8 +129,8 @@ export function AdminInventoryProductsPage() {
                 </div>
               </div>
 
-              {editingProductId === p.id ? (
-                <div className="mt-4 rounded-2xl bg-slate-50 p-4">
+              {editingProductId === product.id ? (
+                <div className="mt-4 rounded-3xl bg-slate-50 p-4 ring-1 ring-slate-200">
                   <div className="mb-3 text-lg font-bold text-slate-900">Editar producto</div>
 
                   <div className="grid gap-3">
@@ -137,9 +141,9 @@ export function AdminInventoryProductsPage() {
                         value={editProdCategoryId}
                         onChange={(e) => setEditProdCategoryId(e.target.value)}
                       >
-                        {categories.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.nombre}
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.nombre}
                           </option>
                         ))}
                       </select>
@@ -162,9 +166,9 @@ export function AdminInventoryProductsPage() {
                         value={editProdUnitType}
                         onChange={(e) => setEditProdUnitType(e.target.value as any)}
                       >
-                        {UNIT_TYPES.map((u) => (
-                          <option key={u.value} value={u.value}>
-                            {u.label}
+                        {UNIT_TYPES.map((unit) => (
+                          <option key={unit.value} value={unit.value}>
+                            {unit.label}
                           </option>
                         ))}
                       </select>
@@ -188,11 +192,11 @@ export function AdminInventoryProductsPage() {
 
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Button
-                        size="md"
+                        size="lg"
                         disabled={updateProductMutation.isPending || !editProdNombre || !editProdCategoryId}
                         onClick={() =>
                           updateProductMutation.mutate({
-                            id: p.id,
+                            id: product.id,
                             data: {
                               categoryId: editProdCategoryId,
                               nombre: editProdNombre,
@@ -205,8 +209,8 @@ export function AdminInventoryProductsPage() {
                       >
                         {updateProductMutation.isPending ? "Guardando..." : "Guardar cambios"}
                       </Button>
-                      <Button size="md" variant="secondary" onClick={() => setEditingProductId(null)}>
-                        Cancelar
+                      <Button size="lg" variant="secondary" onClick={() => setEditingProductId(null)}>
+                        Volver
                       </Button>
                     </div>
                   </div>
@@ -216,12 +220,14 @@ export function AdminInventoryProductsPage() {
           ))}
         </div>
       ) : !productsQuery.isLoading ? (
-        <Card>
+        <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
           <div className="grid gap-3">
             <div className="text-xl font-bold text-slate-900">Aun no tienes productos</div>
-            <div className="text-slate-600">Empieza creando tu primer producto en una vista mas simple y grande.</div>
+            <div className="text-slate-600">Empieza creando tu primer producto en una vista simple y clara.</div>
             <div>
-              <Button onClick={() => navigate("new", { relative: "path" })}>Crear primer producto</Button>
+              <Button size="lg" onClick={() => navigate("new", { relative: "path" })}>
+                Crear primer producto
+              </Button>
             </div>
           </div>
         </Card>

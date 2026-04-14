@@ -11,6 +11,16 @@ function money(value: string) {
   return n.toFixed(2);
 }
 
+function SummaryBox({ title, value, helper }: { title: string; value: string; helper: string }) {
+  return (
+    <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+      <div className="text-sm font-semibold text-slate-500">{title}</div>
+      <div className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">{value}</div>
+      <div className="mt-2 text-sm text-slate-600">{helper}</div>
+    </div>
+  );
+}
+
 export function AdminSalesPage() {
   const qc = useQueryClient();
   const [reason, setReason] = useState("");
@@ -31,89 +41,111 @@ export function AdminSalesPage() {
   });
 
   const rows = useMemo(() => salesQuery.data ?? [], [salesQuery.data]);
+  const completedCount = useMemo(() => rows.filter((sale) => sale.status !== "ANULADA").length, [rows]);
+  const cancelledCount = useMemo(() => rows.filter((sale) => sale.status === "ANULADA").length, [rows]);
+  const totalAmount = useMemo(
+    () => rows.reduce((acc, sale) => acc + Number(sale.total || 0), 0).toFixed(2),
+    [rows]
+  );
 
   return (
-    <div className="grid gap-3">
-      <Card>
-          <CardTitle>Ventas recientes</CardTitle>
-          <CardDescription className="mt-1">Puedes anular una venta si fue un error.</CardDescription>
+    <div className="grid gap-5">
+      <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
+        <CardTitle className="text-2xl text-slate-900">Ventas recientes</CardTitle>
+        <CardDescription className="mt-2 text-base">
+          Revisa las ventas registradas y anula solo las que fueron un error.
+        </CardDescription>
+      </Card>
 
-          {salesQuery.isLoading ? <div className="mt-3 text-slate-600">Cargando...</div> : null}
-          {salesQuery.isError ? (
-            <div className="mt-3 rounded-xl bg-red-50 p-3 text-red-700">No se pudo cargar.</div>
-          ) : null}
+      <section className="grid gap-4 md:grid-cols-3">
+        <SummaryBox title="Total mostrado" value={`S/ ${money(totalAmount)}`} helper="Suma de las ventas en esta lista" />
+        <SummaryBox title="Ventas activas" value={String(completedCount)} helper="Ventas que siguen vigentes" />
+        <SummaryBox title="Ventas anuladas" value={String(cancelledCount)} helper="Ventas que ya fueron revertidas" />
+      </section>
 
-          {rows.length ? (
-            <div className="mt-3 grid gap-2">
-              {rows.map((s) => (
-                <div key={s.id} className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-lg font-bold">{s.receiptNumber}</div>
-                      <div className="text-sm text-slate-600">
-                        {new Date(s.createdAt as any).toLocaleString()} • Items: {s.itemCount}
-                      </div>
-                      <div className="mt-1 text-sm">
-                        Estado: <span className="font-semibold">{s.status}</span>
-                      </div>
+      {salesQuery.isLoading ? <div className="text-slate-600">Cargando...</div> : null}
+      {salesQuery.isError ? <div className="rounded-2xl bg-red-50 p-4 text-red-700">No se pudo cargar.</div> : null}
+
+      {rows.length ? (
+        <div className="grid gap-4">
+          {rows.map((sale) => {
+            const isCancelled = sale.status === "ANULADA";
+
+            return (
+              <Card key={sale.id} className="rounded-3xl border-slate-100 p-5 shadow-sm">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <div className="text-2xl font-extrabold text-slate-900">{sale.receiptNumber}</div>
+                    <div className="mt-2 text-base text-slate-600">
+                      {new Date(sale.createdAt as any).toLocaleString()}
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-extrabold">S/ {money(s.total)}</div>
+                    <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
+                        {sale.itemCount} producto(s)
+                      </span>
+                      <span
+                        className={`rounded-full px-3 py-1 font-semibold ${
+                          isCancelled ? "bg-orange-100 text-orange-800" : "bg-emerald-100 text-emerald-800"
+                        }`}
+                      >
+                        {isCancelled ? "Anulada" : "Activa"}
+                      </span>
                     </div>
                   </div>
 
-                  {s.status !== "ANULADA" ? (
-                    <div className="mt-3">
+                  <div className="flex flex-col items-start gap-3 lg:items-end">
+                    <div className="text-3xl font-extrabold text-slate-900">S/ {money(sale.total)}</div>
+                    {!isCancelled ? (
+                      <Button size="lg" variant="danger" onClick={() => setSelectedSaleId(sale.id)}>
+                        Anular venta
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+
+                {selectedSaleId === sale.id ? (
+                  <div className="mt-4 rounded-3xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                    <div className="text-base font-semibold text-slate-800">Motivo de la anulacion</div>
+                    <div className="mt-2">
+                      <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Ej: error de cobro" />
+                    </div>
+                    {cancelMutation.isError ? (
+                      <div className="mt-3 text-sm text-red-700">
+                        {(cancelMutation.error as any)?.response?.data?.message ?? "No se pudo anular"}
+                      </div>
+                    ) : null}
+                    <div className="mt-3 flex flex-wrap gap-3">
                       <Button
                         variant="danger"
-                        size="md"
-                        onClick={() => setSelectedSaleId(s.id)}
+                        size="lg"
+                        disabled={cancelMutation.isPending}
+                        onClick={() => cancelMutation.mutate({ id: sale.id, reason })}
                       >
-                        Anular
+                        {cancelMutation.isPending ? "Anulando..." : "Confirmar anulacion"}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="lg"
+                        onClick={() => {
+                          setSelectedSaleId(null);
+                          setReason("");
+                        }}
+                      >
+                        Volver
                       </Button>
                     </div>
-                  ) : null}
-
-                  {selectedSaleId === s.id ? (
-                    <div className="mt-3 rounded-2xl bg-slate-50 p-3">
-                      <div className="text-sm font-semibold text-slate-700">Motivo (opcional)</div>
-                      <div className="mt-2">
-                        <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Ej: error de cobro" />
-                      </div>
-                      {cancelMutation.isError ? (
-                        <div className="mt-2 text-sm text-red-700">
-                          {(cancelMutation.error as any)?.response?.data?.message ?? "No se pudo anular"}
-                        </div>
-                      ) : null}
-                      <div className="mt-2 flex gap-2">
-                        <Button
-                          variant="danger"
-                          size="md"
-                          disabled={cancelMutation.isPending}
-                          onClick={() => cancelMutation.mutate({ id: s.id, reason })}
-                        >
-                          {cancelMutation.isPending ? "Anulando..." : "Confirmar anulación"}
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="md"
-                          onClick={() => {
-                            setSelectedSaleId(null);
-                            setReason("");
-                          }}
-                        >
-                          Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          ) : !salesQuery.isLoading ? (
-            <div className="mt-3 text-slate-600">Aún no hay ventas.</div>
-          ) : null}
-      </Card>
+                  </div>
+                ) : null}
+              </Card>
+            );
+          })}
+        </div>
+      ) : !salesQuery.isLoading ? (
+        <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
+          <div className="text-lg font-bold text-slate-900">Aun no hay ventas registradas</div>
+          <div className="mt-2 text-slate-600">Cuando registres ventas, apareceran aqui de forma clara y ordenada.</div>
+        </Card>
+      ) : null}
     </div>
   );
 }

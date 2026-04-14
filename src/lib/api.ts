@@ -1,11 +1,7 @@
 import axios from "axios";
 import { clearSession, getSession } from "../features/auth/auth.session";
 
-// ✅ CORREGIDO - usa nullish coalescing (??)
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? "";
-
-// Debug para verificar
-console.log("🔍 API Base URL:", baseURL);
 
 export const api = axios.create({
   baseURL,
