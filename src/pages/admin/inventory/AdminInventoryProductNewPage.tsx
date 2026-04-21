@@ -13,9 +13,7 @@ export function AdminInventoryProductNewPage() {
 
   const [prodCategoryId, setProdCategoryId] = useState("");
   const [prodNombre, setProdNombre] = useState("");
-  const [prodDesc, setProdDesc] = useState("");
   const [prodUnitType, setProdUnitType] = useState<UnitTypeValue>("UND");
-  const [prodActivo, setProdActivo] = useState(true);
 
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
@@ -42,9 +40,7 @@ export function AdminInventoryProductNewPage() {
 
       <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
         <CardTitle className="text-2xl text-slate-900">Nuevo producto</CardTitle>
-        <CardDescription className="mt-2 text-base">
-          Primero crea el producto. Luego podras agregar tipos, medidas y stock dentro de su ficha.
-        </CardDescription>
+        <CardDescription className="mt-2 text-base">Crea el producto y luego agrega sus variantes.</CardDescription>
 
         <div className="mt-5 grid gap-4">
           <div>
@@ -69,11 +65,6 @@ export function AdminInventoryProductNewPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-base font-semibold text-slate-700">Descripcion</label>
-            <Input value={prodDesc} onChange={(e) => setProdDesc(e.target.value)} placeholder="Ej: Clavos galvanizados" />
-          </div>
-
-          <div>
             <label className="mb-2 block text-base font-semibold text-slate-700">Unidad</label>
             <select
               className="h-14 w-full rounded-xl border border-slate-300 bg-white px-4 text-lg outline-none focus:ring-2 focus:ring-slate-400"
@@ -87,16 +78,6 @@ export function AdminInventoryProductNewPage() {
               ))}
             </select>
           </div>
-
-          <label className="flex items-center gap-2 text-base font-semibold text-slate-700">
-            <input
-              type="checkbox"
-              checked={prodActivo}
-              onChange={(e) => setProdActivo(e.target.checked)}
-              className="h-5 w-5 rounded border-slate-300"
-            />
-            Producto activo
-          </label>
 
           {createProductMutation.isError ? (
             <div className="rounded-2xl bg-red-50 p-3 text-red-700">
@@ -112,11 +93,8 @@ export function AdminInventoryProductNewPage() {
                 createProductMutation.mutate({
                   categoryId: prodCategoryId,
                   nombre: prodNombre,
-                  descripcion: prodDesc || undefined,
                   unitType: prodUnitType,
-                  activo: prodActivo,
-                  atributos: [],
-                  variantes: []
+                  // Lo demás queda con defaults del backend.
                 })
               }
             >

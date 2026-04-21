@@ -52,7 +52,8 @@ export type ProductWithVariants = z.infer<typeof productWithVariantsSchema>;
 
 export const createVariantRequestSchema = z.object({
   nombre: z.string().min(1),
-  sku: z.string().min(1),
+  // SKU se puede omitir en la UI simplificada; el backend lo autogenera.
+  sku: z.string().min(1).optional(),
   codigoBarras: z.string().optional(),
   atributos: z.any().optional().default({}),
   unitType: z.string().optional(),
@@ -63,7 +64,8 @@ export const createVariantRequestSchema = z.object({
   ubicacion: z.string().optional(),
   activo: z.boolean().optional()
 });
-export type CreateVariantRequest = z.infer<typeof createVariantRequestSchema>;
+// Importante: usar `z.input` para que TS refleje campos opcionales/defaults.
+export type CreateVariantRequest = z.input<typeof createVariantRequestSchema>;
 
 export const createProductRequestSchema = z.object({
   categoryId: z.string().min(1),
@@ -75,7 +77,7 @@ export const createProductRequestSchema = z.object({
   unitType: z.string().optional(),
   variantes: z.array(createVariantRequestSchema).optional().default([])
 });
-export type CreateProductRequest = z.infer<typeof createProductRequestSchema>;
+export type CreateProductRequest = z.input<typeof createProductRequestSchema>;
 
 export const updateProductRequestSchema = z.object({
   categoryId: z.string().optional(),
