@@ -11,6 +11,18 @@ function money(value: string) {
   return n.toFixed(2);
 }
 
+function saleTitle(sale: {
+  items: Array<{ productNombre: string; variantNombre: string }>;
+  itemCount: number;
+}) {
+  const first = sale.items[0];
+  if (!first) return "Venta registrada";
+
+  const main = [first.productNombre, first.variantNombre].filter(Boolean).join(" - ");
+  if (sale.itemCount <= 1) return main;
+  return `${main} + ${sale.itemCount - 1} mas`;
+}
+
 function SummaryBox({ title, value, helper }: { title: string; value: string; helper: string }) {
   return (
     <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
@@ -75,7 +87,7 @@ export function AdminSalesPage() {
               <Card key={sale.id} className="rounded-3xl border-slate-100 p-5 shadow-sm">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
-                    <div className="text-2xl font-extrabold text-slate-900">{sale.receiptNumber}</div>
+                    <div className="text-2xl font-extrabold text-slate-900">{saleTitle(sale)}</div>
                     <div className="mt-2 text-base text-slate-600">
                       {new Date(sale.createdAt as any).toLocaleString()}
                     </div>

@@ -9,6 +9,18 @@ function money(value: string) {
   return n.toFixed(2);
 }
 
+function saleTitle(sale: {
+  items: Array<{ productNombre: string; variantNombre: string }>;
+  itemCount: number;
+}) {
+  const first = sale.items[0];
+  if (!first) return "Venta registrada";
+
+  const main = [first.productNombre, first.variantNombre].filter(Boolean).join(" - ");
+  if (sale.itemCount <= 1) return main;
+  return `${main} + ${sale.itemCount - 1} mas`;
+}
+
 export function SellerSalesPage() {
   const q = useQuery({
     queryKey: ["seller-sales"],
@@ -32,7 +44,7 @@ export function SellerSalesPage() {
               <div key={s.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-lg font-bold">{s.receiptNumber}</div>
+                    <div className="text-lg font-bold">{saleTitle(s)}</div>
                     <div className="text-sm text-slate-600">
                       {new Date(s.createdAt as any).toLocaleString()} • Items: {s.itemCount}
                     </div>

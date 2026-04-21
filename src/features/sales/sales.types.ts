@@ -5,7 +5,9 @@ export const saleItemSchema = z.object({
   variantId: z.string(),
   quantity: z.string(),
   unitPrice: z.string(),
-  subtotal: z.string()
+  subtotal: z.string(),
+  variantNombre: z.string().optional(),
+  productNombre: z.string().optional()
 });
 
 export const saleSchema = z.object({
@@ -40,7 +42,16 @@ export const saleSummarySchema = z.object({
   total: z.string(),
   sellerId: z.string(),
   createdAt: z.string().or(z.date()),
-  itemCount: z.number()
+  itemCount: z.number(),
+  items: z.array(
+    z.object({
+      id: z.string(),
+      variantId: z.string(),
+      productNombre: z.string(),
+      variantNombre: z.string(),
+      quantity: z.string()
+    })
+  )
 });
 
 export const saleSummaryListSchema = z.array(saleSummarySchema);
