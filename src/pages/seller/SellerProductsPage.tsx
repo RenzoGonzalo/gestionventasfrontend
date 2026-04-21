@@ -32,6 +32,7 @@ export function SellerProductsPage() {
           <div className="mt-3 grid gap-2">
             {rows.map((v) => (
               <div key={v.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="text-sm font-semibold uppercase tracking-wide text-slate-500">{v.productNombre}</div>
                 <div className="text-lg font-extrabold">{v.nombre}</div>
                 <div className="mt-1 text-sm text-slate-600">Stock: {v.stockActual}</div>
                 <div className="mt-1 text-sm text-slate-600">Precio: S/ {v.precioVenta}</div>

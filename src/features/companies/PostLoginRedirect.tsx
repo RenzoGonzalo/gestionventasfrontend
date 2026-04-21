@@ -18,5 +18,5 @@ export function PostLoginRedirect() {
     return <Navigate to={`/companies/${slug}/seller/sales/new`} replace />;
   }
 
-  return <Navigate to={`/companies/${slug}/admin/sales`} replace />;
+  return <Navigate to={`/companies/${slug}`} replace />;
 }

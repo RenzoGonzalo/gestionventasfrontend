@@ -21,10 +21,10 @@ export function HomePage() {
     return (
       <div className="grid gap-3">
         {companyHeader}
-        <Link to="seller/sales">
+        <Link to="seller/sales/new">
           <Button className="w-full">Nueva venta</Button>
         </Link>
-        <Link to="seller/sales">
+        <Link to="seller/products">
           <Button variant="secondary" className="w-full">Buscar producto</Button>
         </Link>
       </div>
@@ -37,8 +37,8 @@ export function HomePage() {
       <Link to="admin/sales">
         <Button className="w-full">Ventas</Button>
       </Link>
-      <Link to="caja">
-        <Button variant="secondary" className="w-full">Caja</Button>
+      <Link to="admin/dashboard">
+        <Button variant="secondary" className="w-full">Resumen</Button>
       </Link>
       <Link to="admin/inventory">
         <Button variant="secondary" className="w-full">Inventario</Button>
@@ -46,7 +46,7 @@ export function HomePage() {
       <Link to="admin/reports">
         <Button variant="secondary" className="w-full">Reportes</Button>
       </Link>
-      <Link to="admin/sellers">
+      <Link to="admin/users/sellers">
         <Button variant="secondary" className="w-full">Vendedores</Button>
       </Link>
     </div>

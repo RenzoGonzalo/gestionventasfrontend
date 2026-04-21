@@ -121,6 +121,9 @@ export function NewSalePage() {
                   onClick={() => addToCart(v)}
                   className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left hover:bg-slate-50"
                 >
+                  <div className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                    {v.productNombre}
+                  </div>
                   <div className="text-lg font-bold text-slate-900">{v.nombre}</div>
                   <div className="mt-1 flex items-center justify-between text-slate-700">
                     <div className="text-base">S/ {money(v.precioVenta)}</div>
@@ -145,6 +148,9 @@ export function NewSalePage() {
             <div className="mt-3 grid gap-2">
               {cart.map((line) => (
                 <div key={line.variant.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                    {line.variant.productNombre}
+                  </div>
                   <div className="text-lg font-bold">{line.variant.nombre}</div>
                   <div className="mt-1 flex items-center justify-between text-slate-700">
                     <div>S/ {money(line.variant.precioVenta)}</div>

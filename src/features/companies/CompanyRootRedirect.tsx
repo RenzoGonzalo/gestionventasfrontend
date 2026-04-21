@@ -12,5 +12,9 @@ export function CompanyRootRedirect() {
     return <Navigate to={`/companies/${slug}/seller/sales/new`} replace />;
   }
 
-  return <Navigate to={`/companies/${slug}/admin/dashboard`} replace />;
+  if (primaryRole === "STORE_ADMIN") {
+    return <Navigate to={`/companies/${slug}/admin/dashboard`} replace />;
+  }
+
+  return <Navigate to="/login" replace />;
 }

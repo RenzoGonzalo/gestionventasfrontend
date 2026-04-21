@@ -1,12 +1,11 @@
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../features/auth/auth.context";
 import { useMyCompanyQuery } from "../features/companies/useMyCompanyQuery";
+import { getLastCreatedSellerName } from "../features/users/sellers.storage";
 import { Button } from "./ui/button";
 
 function navClass(isActive: boolean) {
-  return isActive
-    ? "w-full justify-start shadow-sm"
-    : "w-full justify-start";
+  return isActive ? "w-full justify-start shadow-sm" : "w-full justify-start";
 }
 
 function SidebarLink({ to, label }: { to: string; label: string }) {
@@ -29,6 +28,7 @@ export function CompanyLayout() {
 
   const companyName = session?.user?.companyName ?? myCompanyQuery.data?.name ?? "";
   const slug = companySlug ?? session?.user?.companySlug ?? "";
+  const lastCreatedSellerName = slug ? getLastCreatedSellerName(slug) : null;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -36,7 +36,7 @@ export function CompanyLayout() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <div className="truncate text-lg font-extrabold text-slate-900">
-              Tienda: {companyName || "—"}
+              FERRETERIA: {companyName || "-"}
             </div>
             <div className="truncate text-sm text-slate-600">
               {session?.user?.nombre ? `Usuario: ${session.user.nombre}` : ""}
@@ -59,17 +59,22 @@ export function CompanyLayout() {
         <aside className="grid gap-2">
           {primaryRole === "SELLER" ? (
             <>
-              <SidebarLink to={`/companies/${slug}/seller/sales/new`} label="🛒 Nueva venta" />
-              <SidebarLink to={`/companies/${slug}/seller/products`} label="📋 Productos" />
-              <SidebarLink to={`/companies/${slug}/seller/sales`} label="📊 Mis ventas" />
+              <SidebarLink to={`/companies/${slug}/seller/sales/new`} label="Nueva venta" />
+              <SidebarLink to={`/companies/${slug}/seller/products`} label="Productos" />
+              <SidebarLink to={`/companies/${slug}/seller/sales`} label="Mis ventas" />
             </>
           ) : (
             <>
-              <SidebarLink to={`/companies/${slug}/admin/dashboard`} label="📊 Dashboard" />
-              <SidebarLink to={`/companies/${slug}/admin/sales`} label="💰 Ventas" />
-              <SidebarLink to={`/companies/${slug}/admin/inventory`} label="📦 Inventario" />
-              <SidebarLink to={`/companies/${slug}/admin/reports`} label="📈 Reportes" />
-              <SidebarLink to={`/companies/${slug}/admin/users/sellers`} label="👥 Vendedores" />
+              <SidebarLink to={`/companies/${slug}/admin/dashboard`} label="Resumen General" />
+              <SidebarLink to={`/companies/${slug}/admin/sales`} label="Ventas" />
+              <SidebarLink to={`/companies/${slug}/admin/inventory`} label="Inventario" />
+              <SidebarLink to={`/companies/${slug}/admin/reports`} label="Reportes" />
+              <SidebarLink to={`/companies/${slug}/admin/users/sellers`} label="Vendedores" />
+              {lastCreatedSellerName ? (
+                <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200">
+                  {lastCreatedSellerName}
+                </div>
+              ) : null}
             </>
           )}
         </aside>

@@ -3,9 +3,12 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "../../components/ui/button";
 import { Card, CardDescription, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import { useAuth } from "../../features/auth/auth.context";
 import { createSeller } from "../../features/users/sellers.api";
+import { saveLastCreatedSellerName } from "../../features/users/sellers.storage";
 
 export function AdminSellersPage() {
+  const { session } = useAuth();
   const [nombre, setNombre] = useState("");
   const [code, setCode] = useState("");
   const [created, setCreated] = useState<{ nombre: string } | null>(null);
@@ -13,6 +16,10 @@ export function AdminSellersPage() {
   const m = useMutation({
     mutationFn: createSeller,
     onSuccess: (user) => {
+      const companySlug = session?.user?.companySlug;
+      if (companySlug) {
+        saveLastCreatedSellerName(companySlug, user.nombre);
+      }
       setCreated({ nombre: user.nombre });
       setNombre("");
       setCode("");

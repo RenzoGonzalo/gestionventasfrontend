@@ -52,7 +52,16 @@ export function LoginPage() {
     (error?.toLowerCase().includes("verificar tu correo") ?? false);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="relative min-h-screen bg-slate-50">
+      <Button
+        type="button"
+        size="sm"
+        variant={mode === "super_admin" ? "primary" : "secondary"}
+        className="absolute left-4 top-4 z-10"
+        onClick={() => setMode("super_admin")}
+      >
+        Soy super admin
+      </Button>
       <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-8">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900">Ingresar</h1>
@@ -69,20 +78,13 @@ export function LoginPage() {
           <CardTitle>Quien eres?</CardTitle>
           <CardDescription className="mt-1">Elige una opcion para entrar.</CardDescription>
 
-          <div className="mt-3 grid grid-cols-3 gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2">
             <Button
               type="button"
               variant={mode === "seller" ? "primary" : "secondary"}
               onClick={() => setMode("seller")}
             >
               Vendedor
-            </Button>
-            <Button
-              type="button"
-              variant={mode === "super_admin" ? "primary" : "secondary"}
-              onClick={() => setMode("super_admin")}
-            >
-              Super Admin
             </Button>
             <Button
               type="button"
@@ -101,7 +103,7 @@ export function LoginPage() {
 
               {!googleClientId ? (
                 <div className="rounded-xl bg-amber-50 p-3 text-amber-800">
-                  Falta configurar <b>VITE_GOOGLE_CLIENT_ID</b> en el frontend.
+                  Falta configurar <b>VITxE_GOOGLE_CLIENT_ID</b> en el frontend.
                 </div>
               ) : null}
 
