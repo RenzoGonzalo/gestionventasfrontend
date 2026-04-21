@@ -61,7 +61,7 @@ export function AdminInventoryProductsPage() {
           <div>
             <CardTitle className="text-2xl text-slate-900">Productos</CardTitle>
             <CardDescription className="mt-2 text-base">
-              Elige un producto para ver sus tipos, medidas y stock. Si hace falta, crea uno nuevo.
+              Elige un producto para ver sus tipos, medidas y cantidad. Si hace falta, crea uno nuevo.
             </CardDescription>
           </div>
 

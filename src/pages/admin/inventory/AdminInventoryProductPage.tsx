@@ -113,7 +113,7 @@ export function AdminInventoryProductPage() {
       <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
         <CardTitle className="text-2xl text-slate-900">Ficha del producto</CardTitle>
         <CardDescription className="mt-2 text-base">
-          Aqui revisas sus tipos o medidas, el stock disponible y los precios. Abajo puedes agregar uno nuevo.
+          Aqui revisas sus tipos o medidas, la cantidad disponible y los precios. Abajo puedes agregar uno nuevo.
         </CardDescription>
 
         {productQuery.isLoading ? <div className="mt-4 text-slate-600">Cargando...</div> : null}
@@ -127,14 +127,14 @@ export function AdminInventoryProductPage() {
 
             <section className="grid gap-4 md:grid-cols-3">
               <SummaryBox title="Tipos o medidas" value={String(variants.length)} helper="Variantes registradas" />
-              <SummaryBox title="Stock total" value={String(totalStock)} helper="Suma de todas las variantes" />
+              <SummaryBox title="Cantidad total" value={String(totalStock)} helper="Suma de todas las variantes" />
               <SummaryBox title="Unidad base" value={product.unitType} helper="Forma principal de venta" />
             </section>
 
             <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
               <CardTitle className="text-2xl text-slate-900">Tipos y medidas</CardTitle>
               <CardDescription className="mt-2 text-base">
-                Revisa aqui el stock, el codigo y los precios de cada variante.
+                Revisa aqui la cantidad y los precios de cada variante.
               </CardDescription>
 
               <div className="mt-5 grid gap-4">
@@ -153,13 +153,13 @@ export function AdminInventoryProductPage() {
 
                             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                               <div className="rounded-2xl bg-slate-50 p-4">
-                                <div className="text-sm font-semibold text-slate-600">Stock actual</div>
+                                <div className="text-sm font-semibold text-slate-600">Cantidad actual</div>
                                 <div className={`mt-1 text-2xl font-extrabold ${lowStock ? "text-red-600" : "text-slate-900"}`}>
                                   {variant.stockActual}
                                 </div>
                               </div>
                               <div className="rounded-2xl bg-slate-50 p-4">
-                                <div className="text-sm font-semibold text-slate-600">Stock minimo</div>
+                                <div className="text-sm font-semibold text-slate-600">Cantidad minima</div>
                                 <div className="mt-1 text-2xl font-extrabold text-slate-900">{variant.stockMinimo}</div>
                               </div>
                               <div className="rounded-2xl bg-slate-50 p-4">
@@ -175,7 +175,7 @@ export function AdminInventoryProductPage() {
                             <div className="mt-3 flex flex-wrap gap-2 text-sm">
                               {lowStock ? (
                                 <span className="rounded-full bg-red-100 px-3 py-1 font-semibold text-red-700">
-                                  Stock bajo
+                                  Cantidad baja
                                 </span>
                               ) : null}
                             </div>
@@ -190,7 +190,7 @@ export function AdminInventoryProductPage() {
                                 setAdjustMotivo("");
                               }}
                             >
-                              Ajustar stock
+                              Ajustar cantidad
                             </Button>
                             <Button
                               size="lg"
@@ -225,7 +225,7 @@ export function AdminInventoryProductPage() {
                             <div className="grid gap-3">
                               <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">
-                                  Cantidad a mover
+                                  Cantidad a ajustar
                                 </label>
                                 <Input
                                   value={adjustCantidad}
@@ -298,7 +298,7 @@ export function AdminInventoryProductPage() {
                                 <Input inputMode="decimal" value={editVarPrecioVenta} onChange={(e) => setEditVarPrecioVenta(e.target.value)} />
                               </div>
                               <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Stock minimo</label>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Cantidad minima</label>
                                 <Input inputMode="decimal" value={editVarStockMinimo} onChange={(e) => setEditVarStockMinimo(e.target.value)} />
                               </div>
 
@@ -358,7 +358,7 @@ export function AdminInventoryProductPage() {
 
             <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
               <CardTitle className="text-2xl text-slate-900">Agregar tipo o medida</CardTitle>
-              <CardDescription className="mt-2 text-base">Solo lo esencial para vender y controlar stock.</CardDescription>
+              <CardDescription className="mt-2 text-base">Solo lo esencial para vender y controlar cantidad.</CardDescription>
 
               <div className="mt-5 grid gap-3">
                 <div>
@@ -388,11 +388,11 @@ export function AdminInventoryProductPage() {
                   <Input inputMode="decimal" value={varPrecioVenta} onChange={(e) => setVarPrecioVenta(e.target.value)} placeholder="0.00" />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-semibold text-slate-700">Stock inicial</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Cantidad inicial</label>
                   <Input inputMode="decimal" value={varStockActual} onChange={(e) => setVarStockActual(e.target.value)} placeholder="0" />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-semibold text-slate-700">Stock minimo</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Cantidad minima</label>
                   <Input inputMode="decimal" value={varStockMinimo} onChange={(e) => setVarStockMinimo(e.target.value)} placeholder="5" />
                 </div>
 

@@ -5,13 +5,16 @@ import { Card, CardDescription, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { useAuth } from "../../features/auth/auth.context";
 import { createSeller } from "../../features/users/sellers.api";
-import { saveLastCreatedSellerName } from "../../features/users/sellers.storage";
+import { getLastCreatedSellerName, saveLastCreatedSellerName } from "../../features/users/sellers.storage";
 
 export function AdminSellersPage() {
   const { session } = useAuth();
   const [nombre, setNombre] = useState("");
   const [code, setCode] = useState("");
   const [created, setCreated] = useState<{ nombre: string } | null>(null);
+
+  const companySlug = session?.user?.companySlug ?? "";
+  const lastCreatedSellerName = companySlug ? getLastCreatedSellerName(companySlug) : null;
 
   const m = useMutation({
     mutationFn: createSeller,
@@ -33,6 +36,12 @@ export function AdminSellersPage() {
         <CardDescription className="mt-2 text-base">
           Crea un acceso simple para la persona que registrara ventas en tienda.
         </CardDescription>
+
+        {!created && lastCreatedSellerName ? (
+          <div className="mt-4 rounded-2xl bg-white p-4 text-slate-700 shadow-sm ring-1 ring-slate-200">
+            Ultimo vendedor creado: <span className="font-semibold">{lastCreatedSellerName}</span>
+          </div>
+        ) : null}
 
         <div className="mt-5 grid gap-4">
           <div>

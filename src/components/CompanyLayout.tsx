@@ -1,7 +1,6 @@
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../features/auth/auth.context";
 import { useMyCompanyQuery } from "../features/companies/useMyCompanyQuery";
-import { getLastCreatedSellerName } from "../features/users/sellers.storage";
 import { Button } from "./ui/button";
 
 function navClass(isActive: boolean) {
@@ -28,7 +27,6 @@ export function CompanyLayout() {
 
   const companyName = session?.user?.companyName ?? myCompanyQuery.data?.name ?? "";
   const slug = companySlug ?? session?.user?.companySlug ?? "";
-  const lastCreatedSellerName = slug ? getLastCreatedSellerName(slug) : null;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -70,11 +68,6 @@ export function CompanyLayout() {
               <SidebarLink to={`/companies/${slug}/admin/inventory`} label="Inventario" />
               <SidebarLink to={`/companies/${slug}/admin/reports`} label="Reportes" />
               <SidebarLink to={`/companies/${slug}/admin/users/sellers`} label="Vendedores" />
-              {lastCreatedSellerName ? (
-                <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200">
-                  {lastCreatedSellerName}
-                </div>
-              ) : null}
             </>
           )}
         </aside>
