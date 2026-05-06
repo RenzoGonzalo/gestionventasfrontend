@@ -16,13 +16,14 @@ import { AdminCompanyEditPage } from "../pages/super/AdminCompanyEditPage";
 import { AdminCompanyNewPage } from "../pages/super/AdminCompanyNewPage";
 import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
 import { AdminInventoryPage } from "../pages/admin/AdminInventoryPage";
-import { AdminReportsPage } from "../pages/admin/AdminReportsPage";
+import { ReportsPage } from "../pages/admin/ReportsPage";
 import { AdminSalesPage } from "../pages/admin/AdminSalesPage";
 import { AdminSellersPage } from "../pages/admin/AdminSellersPage";
 import { AdminInventoryCategoriesPage } from "../pages/admin/inventory/AdminInventoryCategoriesPage";
 import { AdminInventoryProductPage } from "../pages/admin/inventory/AdminInventoryProductPage";
 import { AdminInventoryProductNewPage } from "../pages/admin/inventory/AdminInventoryProductNewPage";
 import { AdminInventoryProductsPage } from "../pages/admin/inventory/AdminInventoryProductsPage";
+import { AdminInventoryCreatePage } from "../pages/admin/inventory/AdminInventoryCreatePage";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -74,6 +75,15 @@ export const router = createBrowserRouter([
                     element: <AdminInventoryPage />,
                     children: [
                       { index: true, element: <Navigate to="products" replace /> },
+                      {
+                        path: "create",
+                        element: <AdminInventoryCreatePage />,
+                        children: [
+                          { index: true, element: <Navigate to="product" replace /> },
+                          { path: "categories", element: <AdminInventoryCategoriesPage /> },
+                          { path: "product", element: <AdminInventoryProductNewPage showBackLink={false} backTarget="../../products" /> }
+                        ]
+                      },
                       { path: "categories", element: <AdminInventoryCategoriesPage /> },
                       { path: "products", element: <AdminInventoryProductsPage /> },
                       { path: "products/new", element: <AdminInventoryProductNewPage /> },
@@ -82,10 +92,10 @@ export const router = createBrowserRouter([
                       { path: "stock-adjust", element: <Navigate to="../products" replace /> }
                     ]
                   },
-                  { path: "reports", element: <AdminReportsPage /> },
-                  { path: "reports/daily", element: <AdminReportsPage /> },
-                  { path: "reports/top-products", element: <AdminReportsPage /> },
-                  { path: "reports/seller-performance", element: <AdminReportsPage /> },
+                  { path: "reports", element: <ReportsPage /> },
+                  { path: "reports/daily", element: <ReportsPage /> },
+                  { path: "reports/top-products", element: <ReportsPage /> },
+                  { path: "reports/seller-performance", element: <ReportsPage /> },
                   { path: "users/sellers", element: <AdminSellersPage /> },
                   { path: "users/sellers/new", element: <AdminSellersPage /> }
                 ]

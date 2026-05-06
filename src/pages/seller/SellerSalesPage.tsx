@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { Button } from "../../components/ui/button";
 import { Card, CardDescription, CardTitle } from "../../components/ui/card";
 import { listMySales } from "../../features/sales/sales.api";
 
@@ -18,7 +20,7 @@ function saleTitle(sale: {
 
   const main = [first.productNombre, first.variantNombre].filter(Boolean).join(" - ");
   if (sale.itemCount <= 1) return main;
-  return `${main} + ${sale.itemCount - 1} mas`;
+  return `${main} + ${sale.itemCount - 1} más`;
 }
 
 export function SellerSalesPage() {
@@ -33,7 +35,7 @@ export function SellerSalesPage() {
     <div className="grid gap-3">
       <Card>
         <CardTitle>Mis ventas</CardTitle>
-        <CardDescription className="mt-1">Tus ventas recientes.</CardDescription>
+        <CardDescription className="mt-1">Lista simple de tus ventas recientes.</CardDescription>
 
         {q.isLoading ? <div className="mt-3 text-slate-600">Cargando...</div> : null}
         {q.isError ? <div className="mt-3 rounded-xl bg-red-50 p-3 text-red-700">No se pudo cargar.</div> : null}
@@ -48,8 +50,8 @@ export function SellerSalesPage() {
                     <div className="text-sm text-slate-600">
                       {new Date(s.createdAt as any).toLocaleString()} • Items: {s.itemCount}
                     </div>
-                    <div className="mt-1 text-sm">
-                      Estado: <span className="font-semibold">{s.status}</span>
+                    <div className="mt-1 text-sm text-slate-600">
+                      Estado: <span className="font-semibold">{s.status === "ANULADA" ? "Cancelada" : "Vigente"}</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -60,7 +62,15 @@ export function SellerSalesPage() {
             ))}
           </div>
         ) : !q.isLoading ? (
-          <div className="mt-3 text-slate-600">Aún no tienes ventas.</div>
+          <div className="mt-3 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+            <div className="text-lg font-bold text-slate-900">Aún no tienes ventas</div>
+            <div className="mt-1 text-slate-600">Haz clic en “Vender” para registrar tu primera venta.</div>
+            <div className="mt-3">
+              <Link to="../sales/new" relative="path">
+                <Button size="lg">Vender</Button>
+              </Link>
+            </div>
+          </div>
         ) : null}
       </Card>
     </div>

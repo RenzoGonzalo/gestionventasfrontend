@@ -18,7 +18,7 @@ export function SellerProductsPage() {
     <div className="grid gap-3">
       <Card>
         <CardTitle>Productos</CardTitle>
-        <CardDescription className="mt-1">Consulta (sin edición).</CardDescription>
+        <CardDescription className="mt-1">Busca un producto para vender (solo consulta).</CardDescription>
 
         <div className="mt-4">
           <label className="mb-1 block text-sm font-semibold text-slate-700">Buscar</label>
@@ -40,7 +40,10 @@ export function SellerProductsPage() {
             ))}
           </div>
         ) : !query.isLoading ? (
-          <div className="mt-3 text-slate-600">Sin resultados.</div>
+          <div className="mt-3 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+            <div className="text-lg font-bold text-slate-900">Sin resultados</div>
+            <div className="mt-1 text-slate-600">Prueba con otra palabra (ej: clavo, martillo, 1/2).</div>
+          </div>
         ) : null}
       </Card>
     </div>

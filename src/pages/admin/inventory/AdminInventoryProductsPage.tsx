@@ -3,7 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
 import { Card, CardDescription, CardTitle } from "../../../components/ui/card";
+import { ConfirmDialog } from "../../../components/ui/confirm-dialog";
 import { Input } from "../../../components/ui/input";
+import { useToast } from "../../../components/ui/toast";
 import { deleteProduct, listCategories, listProducts, updateProduct } from "../../../features/inventory/inventory.api";
 import type { Category } from "../../../features/inventory/inventory.types";
 import { apiMessage, UNIT_TYPES, type UnitTypeValue } from "./inventory.ui";
@@ -11,6 +13,7 @@ import { apiMessage, UNIT_TYPES, type UnitTypeValue } from "./inventory.ui";
 export function AdminInventoryProductsPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [editProdCategoryId, setEditProdCategoryId] = useState("");
@@ -18,6 +21,8 @@ export function AdminInventoryProductsPage() {
   const [editProdDesc, setEditProdDesc] = useState("");
   const [editProdUnitType, setEditProdUnitType] = useState<UnitTypeValue>("UND");
   const [editProdActivo, setEditProdActivo] = useState(true);
+
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; nombre: string } | null>(null);
 
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
@@ -33,15 +38,24 @@ export function AdminInventoryProductsPage() {
     mutationFn: async (input: { id: string; data: any }) => updateProduct(input.id, input.data),
     onSuccess: async (updated) => {
       setEditingProductId(null);
+      toast.success("Producto guardado correctamente");
       await qc.invalidateQueries({ queryKey: ["products"] });
       await qc.invalidateQueries({ queryKey: ["product", updated.id] });
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "Error al guardar"));
     }
   });
 
   const deleteProductMutation = useMutation({
     mutationFn: deleteProduct,
     onSuccess: async () => {
+      toast.success("Producto eliminado");
       await qc.invalidateQueries({ queryKey: ["products"] });
+      setDeleteTarget(null);
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "No se pudo eliminar"));
     }
   });
 
@@ -56,19 +70,12 @@ export function AdminInventoryProductsPage() {
 
   return (
     <div className="grid gap-5">
-      <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <CardTitle className="text-2xl text-slate-900">Productos</CardTitle>
-            <CardDescription className="mt-2 text-base">
-              Elige un producto para ver sus tipos, medidas y cantidad. Si hace falta, crea uno nuevo.
-            </CardDescription>
-          </div>
 
-          <Button size="lg" onClick={() => navigate("new", { relative: "path" })}>
-            Nuevo producto
-          </Button>
-        </div>
+      <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
+        <CardTitle className="text-2xl text-slate-900">Mis productos</CardTitle>
+        <CardDescription className="mt-2 text-base">
+          Lista simple. Abre detalles solo si lo necesitas.
+        </CardDescription>
       </Card>
 
       {productsQuery.isLoading ? <div className="text-slate-600">Cargando productos...</div> : null}
@@ -80,21 +87,25 @@ export function AdminInventoryProductsPage() {
             <Card key={product.id} className="rounded-3xl border-slate-100 p-5 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
-                  <div className="text-2xl font-extrabold text-slate-900">{product.nombre}</div>
-                  {product.descripcion ? <div className="mt-2 text-base text-slate-600">{product.descripcion}</div> : null}
-                  <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                    <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
-                      {product.activo ? "Activo" : "Inactivo"}
-                    </span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
-                      Unidad: {product.unitType}
-                    </span>
+                  <div className="text-xl font-extrabold text-slate-900">{product.nombre}</div>
+                  <div className="mt-2 text-sm text-slate-600">
                     {categoryById.get(product.categoryId)?.nombre ? (
-                      <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
-                        Categoria: {categoryById.get(product.categoryId)?.nombre}
-                      </span>
+                      <span className="font-semibold">Categoría:</span>
                     ) : null}
+                    {categoryById.get(product.categoryId)?.nombre ? ` ${categoryById.get(product.categoryId)?.nombre}` : " Sin categoría"}
+                    {" • "}
+                    {product.activo ? "Vigente" : "Inactivo"}
                   </div>
+
+                  <details className="mt-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
+                    <summary className="cursor-pointer text-sm font-semibold text-blue-700">Ver detalles</summary>
+                    <div className="mt-2 grid gap-2 text-sm text-slate-700">
+                      {product.descripcion ? <div>{product.descripcion}</div> : <div className="text-slate-600">Sin descripción.</div>}
+                      <div>
+                        <span className="font-semibold">Tamaño:</span> {product.unitType}
+                      </div>
+                    </div>
+                  </details>
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-3 lg:w-[360px] lg:grid-cols-1">
@@ -120,8 +131,7 @@ export function AdminInventoryProductsPage() {
                     variant="danger"
                     disabled={deleteProductMutation.isPending}
                     onClick={() => {
-                      if (!window.confirm("Eliminar este producto?")) return;
-                      deleteProductMutation.mutate(product.id);
+                      setDeleteTarget({ id: product.id, nombre: product.nombre });
                     }}
                   >
                     Eliminar
@@ -222,11 +232,11 @@ export function AdminInventoryProductsPage() {
       ) : !productsQuery.isLoading ? (
         <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
           <div className="grid gap-3">
-            <div className="text-xl font-bold text-slate-900">Aun no tienes productos</div>
-            <div className="text-slate-600">Empieza creando tu primer producto en una vista simple y clara.</div>
+            <div className="text-xl font-bold text-slate-900">Aún no tienes productos</div>
+            <div className="text-slate-600">Paso 1: agrega tu primer producto. Haz clic en “Agregar mi primer producto” para empezar.</div>
             <div>
-              <Button size="lg" onClick={() => navigate("new", { relative: "path" })}>
-                Crear primer producto
+              <Button size="lg" onClick={() => navigate("../create/product", { relative: "path" })}>
+                Agregar mi primer producto
               </Button>
             </div>
           </div>
@@ -238,6 +248,21 @@ export function AdminInventoryProductsPage() {
           {apiMessage(deleteProductMutation.error, "No se pudo eliminar")}
         </div>
       ) : null}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={deleteTarget ? `Eliminar “${deleteTarget.nombre}”` : "Eliminar producto"}
+        description="Este producto se eliminará y ya no aparecerá en tu inventario."
+        confirmLabel="Sí, eliminar"
+        cancelLabel="No, volver"
+        confirmVariant="danger"
+        busy={deleteProductMutation.isPending}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          deleteProductMutation.mutate(deleteTarget.id);
+        }}
+      />
     </div>
   );
 }

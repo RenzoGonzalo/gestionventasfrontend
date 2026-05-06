@@ -4,12 +4,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
 import { Card, CardDescription, CardTitle } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
+import { useToast } from "../../../components/ui/toast";
 import { createProduct, listCategories } from "../../../features/inventory/inventory.api";
 import { apiMessage, UNIT_TYPES, type UnitTypeValue } from "./inventory.ui";
 
-export function AdminInventoryProductNewPage() {
+export function AdminInventoryProductNewPage({
+  showBackLink = true,
+  backTarget = ".."
+}: {
+  showBackLink?: boolean;
+  backTarget?: string;
+}) {
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [prodCategoryId, setProdCategoryId] = useState("");
   const [prodNombre, setProdNombre] = useState("");
@@ -23,8 +31,13 @@ export function AdminInventoryProductNewPage() {
   const createProductMutation = useMutation({
     mutationFn: createProduct,
     onSuccess: async (created) => {
+      toast.success("Producto creado correctamente");
       await qc.invalidateQueries({ queryKey: ["products"] });
-      navigate(`../${created.id}`, { relative: "path" });
+      const base = backTarget.endsWith("/") ? backTarget.slice(0, -1) : backTarget;
+      navigate(`${base}/${created.id}`, { relative: "path" });
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "Error al guardar"));
     }
   });
 
@@ -32,15 +45,17 @@ export function AdminInventoryProductNewPage() {
 
   return (
     <div className="grid gap-5">
-      <div>
-        <Link to=".." relative="path" className="text-base font-semibold text-slate-700 underline">
-          Volver a productos
-        </Link>
-      </div>
+      {showBackLink ? (
+        <div>
+          <Link to={backTarget} relative="path" className="text-base font-semibold text-slate-700 underline">
+            Volver a productos
+          </Link>
+        </div>
+      ) : null}
 
       <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
         <CardTitle className="text-2xl text-slate-900">Nuevo producto</CardTitle>
-        <CardDescription className="mt-2 text-base">Crea el producto y luego agrega sus variantes.</CardDescription>
+        <CardDescription className="mt-2 text-base">Primero guarda el producto. Luego podrás agregar sus tamaños.</CardDescription>
 
         <div className="mt-5 grid gap-4">
           <div>
@@ -65,7 +80,7 @@ export function AdminInventoryProductNewPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-base font-semibold text-slate-700">Unidad</label>
+            <label className="mb-2 block text-base font-semibold text-slate-700">Tamaño</label>
             <select
               className="h-14 w-full rounded-xl border border-slate-300 bg-white px-4 text-lg outline-none focus:ring-2 focus:ring-slate-400"
               value={prodUnitType}
@@ -100,7 +115,7 @@ export function AdminInventoryProductNewPage() {
             >
               {createProductMutation.isPending ? "Creando..." : "Guardar y abrir producto"}
             </Button>
-            <Button size="lg" variant="secondary" onClick={() => navigate("..", { relative: "path" })}>
+            <Button size="lg" variant="secondary" onClick={() => navigate(backTarget, { relative: "path" })}>
               Volver
             </Button>
           </div>

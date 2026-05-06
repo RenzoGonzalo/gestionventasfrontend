@@ -21,8 +21,14 @@ export function HomePage() {
     return (
       <div className="grid gap-3">
         {companyHeader}
+        <Card>
+          <CardTitle className="text-xl">Primeros pasos</CardTitle>
+          <CardDescription className="mt-1">
+            1) Busca el producto • 2) Haz clic en “Vender” para registrar la venta
+          </CardDescription>
+        </Card>
         <Link to="seller/sales/new">
-          <Button className="w-full">Nueva venta</Button>
+          <Button className="w-full">Vender</Button>
         </Link>
         <Link to="seller/products">
           <Button variant="secondary" className="w-full">Buscar producto</Button>
@@ -34,14 +40,20 @@ export function HomePage() {
   return (
     <div className="grid gap-3">
       {companyHeader}
+      <Card>
+        <CardTitle className="text-xl">Primeros pasos</CardTitle>
+        <CardDescription className="mt-1">
+          1) Agrega tu primer producto • 2) Revisa tus ventas
+        </CardDescription>
+      </Card>
       <Link to="admin/sales">
-        <Button className="w-full">Ventas</Button>
+        <Button className="w-full">Ver ventas</Button>
+      </Link>
+      <Link to="admin/inventory">
+        <Button variant="secondary" className="w-full">Ver inventario</Button>
       </Link>
       <Link to="admin/dashboard">
         <Button variant="secondary" className="w-full">Resumen</Button>
-      </Link>
-      <Link to="admin/inventory">
-        <Button variant="secondary" className="w-full">Inventario</Button>
       </Link>
       <Link to="admin/reports">
         <Button variant="secondary" className="w-full">Reportes</Button>

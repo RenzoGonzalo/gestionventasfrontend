@@ -39,7 +39,7 @@ export function LoginPage() {
       }
       navigate("/", { replace: true });
     } catch (err: any) {
-      const msg = err?.response?.data?.message ?? err?.message ?? "No se pudo iniciar sesion";
+      const msg = err?.response?.data?.message ?? err?.message ?? "No se pudo iniciar sesión";
       setError(String(msg));
     } finally {
       setLoading(false);
@@ -60,23 +60,23 @@ export function LoginPage() {
         className="absolute left-4 top-4 z-10"
         onClick={() => setMode("super_admin")}
       >
-        Soy super admin
+        Soy súper admin
       </Button>
       <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-8">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900">Ingresar</h1>
-          <p className="mt-1 text-slate-600">Usa tu correo y contrasena.</p>
+          <p className="mt-1 text-slate-600">Usa tu correo y contraseña.</p>
         </div>
 
         {verified ? (
           <div className="rounded-xl bg-emerald-50 p-3 text-emerald-800">
-            Correo verificado. Ya puedes iniciar sesion.
+            Correo verificado. Ya puedes iniciar sesión.
           </div>
         ) : null}
 
         <Card>
-          <CardTitle>Quien eres?</CardTitle>
-          <CardDescription className="mt-1">Elige una opcion para entrar.</CardDescription>
+          <CardTitle>¿Quién eres?</CardTitle>
+          <CardDescription className="mt-1">Elige una opción para entrar.</CardDescription>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
             <Button
@@ -103,7 +103,7 @@ export function LoginPage() {
 
               {!googleClientId ? (
                 <div className="rounded-xl bg-amber-50 p-3 text-amber-800">
-                  Falta configurar <b>VITxE_GOOGLE_CLIENT_ID</b> en el frontend.
+                  Falta configurar <b>VITE_GOOGLE_CLIENT_ID</b> en el frontend.
                 </div>
               ) : null}
 
@@ -121,14 +121,14 @@ export function LoginPage() {
                       navigate("/", { replace: true });
                     } catch (err: any) {
                       const msg =
-                        err?.response?.data?.message ?? err?.message ?? "No se pudo iniciar sesion";
+                        err?.response?.data?.message ?? err?.message ?? "No se pudo iniciar sesión";
                       setError(String(msg));
                     } finally {
                       setLoading(false);
                     }
                   }}
                   onError={() => {
-                    setError("No se pudo iniciar sesion con Google");
+                    setError("No se pudo iniciar sesión con Google");
                   }}
                 />
               </div>
@@ -140,12 +140,12 @@ export function LoginPage() {
                 <Input
                   value={sellerNombre}
                   onChange={(e) => setSellerNombre(e.target.value)}
-                  placeholder="Ej: Juan Perez"
+                  placeholder="Ej: Juan Pérez"
                   autoComplete="off"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-semibold text-slate-700">Codigo (6 digitos)</label>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">Código (6 dígitos)</label>
                 <Input
                   type="password"
                   value={sellerCode}
@@ -174,12 +174,12 @@ export function LoginPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-semibold text-slate-700">Contrasena</label>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">Contraseña</label>
                 <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Tu contrasena"
+                  placeholder="Tu contraseña"
                   autoComplete="current-password"
                 />
               </div>
@@ -188,7 +188,7 @@ export function LoginPage() {
 
               {error?.toLowerCase().includes("verificar tu correo") ? (
                 <div className="rounded-xl bg-amber-50 p-3 text-amber-800">
-                  Revisa tu bandeja (y spam) y abre el link de verificacion.
+                  Revisa tu bandeja (y spam) y abre el link de verificación.
                 </div>
               ) : null}
 
@@ -212,7 +212,7 @@ export function LoginPage() {
                     }
                   }}
                 >
-                  Reenviar correo de verificacion
+                  Reenviar correo de verificación
                 </Button>
               ) : null}
 

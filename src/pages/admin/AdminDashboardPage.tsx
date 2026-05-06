@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardDescription, CardTitle } from "../../components/ui/card";
 import { getDashboard } from "../../features/reports/reports.api";
 
 function money(value: string) {
@@ -43,13 +42,6 @@ export function AdminDashboardPage() {
 
   return (
     <div className="grid gap-5">
-      <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
-        <CardTitle className="text-2xl text-slate-900">Resumen general</CardTitle>
-        <CardDescription className="mt-2 text-base">
-          Aqui ves lo mas importante de tu tienda sin entrar a reportes mas detallados.
-        </CardDescription>
-      </Card>
-
       {q.isLoading ? <div className="text-slate-600">Cargando...</div> : null}
       {q.isError ? <div className="rounded-2xl bg-red-50 p-4 text-red-700">No se pudo cargar.</div> : null}
 
@@ -70,7 +62,7 @@ export function AdminDashboardPage() {
           <MetricCard
             title="Alertas de stock"
             value={String(data.lowStockCount)}
-            helper="Productos que necesitan atencion"
+            helper="Productos que necesitan atención"
             accent="bg-orange-100"
           />
         </div>

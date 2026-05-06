@@ -3,7 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
 import { Card, CardDescription, CardTitle } from "../../../components/ui/card";
+import { ConfirmDialog } from "../../../components/ui/confirm-dialog";
 import { Input } from "../../../components/ui/input";
+import { useToast } from "../../../components/ui/toast";
 import {
   addVariantToProduct,
   adjustVariantStock,
@@ -31,6 +33,7 @@ function SummaryBox({ title, value, helper }: { title: string; value: string; he
 export function AdminInventoryProductPage() {
   const { productId } = useParams();
   const qc = useQueryClient();
+  const toast = useToast();
 
   const [varNombre, setVarNombre] = useState("");
   const [varUnitType, setVarUnitType] = useState<UnitTypeValue>("UND");
@@ -50,6 +53,8 @@ export function AdminInventoryProductPage() {
   const [adjustCantidad, setAdjustCantidad] = useState("");
   const [adjustMotivo, setAdjustMotivo] = useState("");
 
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; nombre: string } | null>(null);
+
   const productQuery = useQuery({
     queryKey: ["product", productId],
     queryFn: () => getProduct(productId as string),
@@ -59,6 +64,7 @@ export function AdminInventoryProductPage() {
   const addVariantMutation = useMutation({
     mutationFn: async (input: { productId: string; data: any }) => addVariantToProduct(input.productId, input.data),
     onSuccess: async () => {
+      toast.success("Tamaño agregado correctamente");
       setVarNombre("");
       setVarUnitType("UND");
       setVarPrecioCompra("");
@@ -66,6 +72,9 @@ export function AdminInventoryProductPage() {
       setVarStockActual("");
       setVarStockMinimo("5");
       await qc.invalidateQueries({ queryKey: ["product", productId] });
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "Error al guardar"));
     }
   });
 
@@ -73,14 +82,23 @@ export function AdminInventoryProductPage() {
     mutationFn: async (input: { id: string; data: any }) => updateVariant(input.id, input.data),
     onSuccess: async () => {
       setEditingVariantId(null);
+      toast.success("Tamaño guardado correctamente");
       await qc.invalidateQueries({ queryKey: ["product", productId] });
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "Error al guardar"));
     }
   });
 
   const deleteVariantMutation = useMutation({
     mutationFn: deleteVariant,
     onSuccess: async () => {
+      toast.success("Tamaño eliminado");
       await qc.invalidateQueries({ queryKey: ["product", productId] });
+      setDeleteTarget(null);
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "No se pudo eliminar"));
     }
   });
 
@@ -90,7 +108,11 @@ export function AdminInventoryProductPage() {
       setAdjustingVariantId(null);
       setAdjustCantidad("");
       setAdjustMotivo("");
+      toast.success("Cantidad actualizada");
       await qc.invalidateQueries({ queryKey: ["product", productId] });
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "Error al guardar"));
     }
   });
 
@@ -113,7 +135,7 @@ export function AdminInventoryProductPage() {
       <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
         <CardTitle className="text-2xl text-slate-900">Ficha del producto</CardTitle>
         <CardDescription className="mt-2 text-base">
-          Aqui revisas sus tipos o medidas, la cantidad disponible y los precios. Abajo puedes agregar uno nuevo.
+          Aquí revisas sus tamaños, la cantidad disponible y los precios. Abajo puedes agregar uno nuevo.
         </CardDescription>
 
         {productQuery.isLoading ? <div className="mt-4 text-slate-600">Cargando...</div> : null}
@@ -126,13 +148,13 @@ export function AdminInventoryProductPage() {
             </div>
 
             <section className="grid gap-4 md:grid-cols-3">
-              <SummaryBox title="Tipos o medidas" value={String(variants.length)} helper="Variantes registradas" />
+              <SummaryBox title="Tamaños" value={String(variants.length)} helper="Variantes registradas" />
               <SummaryBox title="Cantidad total" value={String(totalStock)} helper="Suma de todas las variantes" />
-              <SummaryBox title="Unidad base" value={product.unitType} helper="Forma principal de venta" />
+              <SummaryBox title="Tamaño base" value={product.unitType} helper="Forma principal de venta" />
             </section>
 
             <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
-              <CardTitle className="text-2xl text-slate-900">Tipos y medidas</CardTitle>
+              <CardTitle className="text-2xl text-slate-900">Tamaños</CardTitle>
               <CardDescription className="mt-2 text-base">
                 Revisa aqui la cantidad y los precios de cada variante.
               </CardDescription>
@@ -149,7 +171,7 @@ export function AdminInventoryProductPage() {
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                           <div className="min-w-0">
                             <div className="text-2xl font-extrabold text-slate-900">{variant.nombre}</div>
-                            <div className="mt-2 text-sm font-semibold text-slate-600">Unidad: {variant.unitType}</div>
+                            <div className="mt-2 text-sm font-semibold text-slate-600">Tamaño: {variant.unitType}</div>
 
                             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                               <div className="rounded-2xl bg-slate-50 p-4">
@@ -211,8 +233,7 @@ export function AdminInventoryProductPage() {
                               variant="danger"
                               disabled={deleteVariantMutation.isPending}
                               onClick={() => {
-                                if (!window.confirm("Eliminar esta variante?")) return;
-                                deleteVariantMutation.mutate(variant.id);
+                                setDeleteTarget({ id: variant.id, nombre: variant.nombre });
                               }}
                             >
                               Eliminar
@@ -269,14 +290,14 @@ export function AdminInventoryProductPage() {
 
                         {editingVariantId === variant.id ? (
                           <div className="mt-4 rounded-3xl bg-slate-50 p-4 ring-1 ring-slate-200">
-                            <div className="mb-3 text-lg font-bold text-slate-900">Editar tipo o medida</div>
+                            <div className="mb-3 text-lg font-bold text-slate-900">Editar tamaño</div>
                             <div className="grid gap-3">
                               <div>
                                 <label className="mb-1 block text-sm font-semibold text-slate-700">Nombre</label>
                                 <Input value={editVarNombre} onChange={(e) => setEditVarNombre(e.target.value)} />
                               </div>
                               <div>
-                                <label className="mb-1 block text-sm font-semibold text-slate-700">Unidad</label>
+                                <label className="mb-1 block text-sm font-semibold text-slate-700">Tamaño</label>
                                 <select
                                   className="h-14 w-full rounded-xl border border-slate-300 bg-white px-4 text-lg outline-none focus:ring-2 focus:ring-slate-400"
                                   value={editVarUnitType}
@@ -344,7 +365,7 @@ export function AdminInventoryProductPage() {
                   })
                 ) : (
                   <div className="rounded-3xl bg-white p-5 text-slate-600 shadow-sm ring-1 ring-slate-200">
-                    Este producto aun no tiene tipos o medidas registrados.
+                    Este producto aún no tiene tamaños registrados.
                   </div>
                 )}
               </div>
@@ -357,7 +378,7 @@ export function AdminInventoryProductPage() {
             </Card>
 
             <Card className="rounded-3xl border-slate-100 p-6 shadow-sm">
-              <CardTitle className="text-2xl text-slate-900">Agregar tipo o medida</CardTitle>
+              <CardTitle className="text-2xl text-slate-900">Agregar tamaño</CardTitle>
               <CardDescription className="mt-2 text-base">Solo lo esencial para vender y controlar cantidad.</CardDescription>
 
               <div className="mt-5 grid gap-3">
@@ -366,7 +387,7 @@ export function AdminInventoryProductPage() {
                   <Input value={varNombre} onChange={(e) => setVarNombre(e.target.value)} placeholder="Ej: 1 pulgada" />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-semibold text-slate-700">Unidad</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Tamaño</label>
                   <select
                     className="h-14 w-full rounded-xl border border-slate-300 bg-white px-4 text-lg outline-none focus:ring-2 focus:ring-slate-400"
                     value={varUnitType}
@@ -419,12 +440,27 @@ export function AdminInventoryProductPage() {
                     })
                   }
                 >
-                  {addVariantMutation.isPending ? "Agregando..." : "Agregar variante"}
+                  {addVariantMutation.isPending ? "Agregando..." : "Agregar tamaño"}
                 </Button>
               </div>
             </Card>
           </div>
         ) : null}
+
+        <ConfirmDialog
+          open={!!deleteTarget}
+          title={deleteTarget ? `Eliminar “${deleteTarget.nombre}”` : "Eliminar tamaño"}
+          description="Este tamaño se eliminará. Esta acción no se puede deshacer."
+          confirmLabel="Sí, eliminar"
+          cancelLabel="No, volver"
+          confirmVariant="danger"
+          busy={deleteVariantMutation.isPending}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={() => {
+            if (!deleteTarget) return;
+            deleteVariantMutation.mutate(deleteTarget.id);
+          }}
+        />
       </Card>
     </div>
   );

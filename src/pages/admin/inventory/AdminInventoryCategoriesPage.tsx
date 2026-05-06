@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../../../components/ui/button";
 import { Card, CardDescription, CardTitle } from "../../../components/ui/card";
+import { ConfirmDialog } from "../../../components/ui/confirm-dialog";
 import { Input } from "../../../components/ui/input";
+import { useToast } from "../../../components/ui/toast";
 import {
   createCategory,
   deleteCategory,
@@ -13,6 +15,7 @@ import { apiMessage } from "./inventory.ui";
 
 export function AdminInventoryCategoriesPage() {
   const qc = useQueryClient();
+  const toast = useToast();
   const [catNombre, setCatNombre] = useState("");
   const [catDesc, setCatDesc] = useState("");
 
@@ -20,6 +23,8 @@ export function AdminInventoryCategoriesPage() {
   const [editCatNombre, setEditCatNombre] = useState("");
   const [editCatDesc, setEditCatDesc] = useState("");
   const [editCatActivo, setEditCatActivo] = useState(true);
+
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; nombre: string } | null>(null);
 
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
@@ -29,9 +34,13 @@ export function AdminInventoryCategoriesPage() {
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,
     onSuccess: async () => {
+      toast.success("Categoría creada correctamente");
       setCatNombre("");
       setCatDesc("");
       await qc.invalidateQueries({ queryKey: ["categories"] });
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "Error al guardar"));
     }
   });
 
@@ -40,16 +49,25 @@ export function AdminInventoryCategoriesPage() {
       updateCategory(input.id, input.data),
     onSuccess: async () => {
       setEditingCategoryId(null);
+      toast.success("Categoría guardada correctamente");
       await qc.invalidateQueries({ queryKey: ["categories"] });
       await qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "Error al guardar"));
     }
   });
 
   const deleteCategoryMutation = useMutation({
     mutationFn: deleteCategory,
     onSuccess: async () => {
+      toast.success("Categoría eliminada");
       await qc.invalidateQueries({ queryKey: ["categories"] });
       await qc.invalidateQueries({ queryKey: ["products"] });
+      setDeleteTarget(null);
+    },
+    onError: (err: any) => {
+      toast.error(apiMessage(err, "No se pudo eliminar"));
     }
   });
 
@@ -119,8 +137,7 @@ export function AdminInventoryCategoriesPage() {
                       variant="danger"
                       disabled={deleteCategoryMutation.isPending}
                       onClick={() => {
-                        if (!window.confirm("¿Eliminar esta categoría?")) return;
-                        deleteCategoryMutation.mutate(c.id);
+                        setDeleteTarget({ id: c.id, nombre: c.nombre });
                       }}
                     >
                       Eliminar
@@ -191,6 +208,21 @@ export function AdminInventoryCategoriesPage() {
             {apiMessage(deleteCategoryMutation.error, "No se pudo eliminar")}
           </div>
         ) : null}
+
+        <ConfirmDialog
+          open={!!deleteTarget}
+          title={deleteTarget ? `Eliminar categoría “${deleteTarget.nombre}”` : "Eliminar categoría"}
+          description="Se eliminará esta categoría. Si tiene productos asociados, podrían quedar sin categoría."
+          confirmLabel="Sí, eliminar"
+          cancelLabel="No, volver"
+          confirmVariant="danger"
+          busy={deleteCategoryMutation.isPending}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={() => {
+            if (!deleteTarget) return;
+            deleteCategoryMutation.mutate(deleteTarget.id);
+          }}
+        />
       </Card>
     </div>
   );

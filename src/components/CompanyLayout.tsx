@@ -4,15 +4,36 @@ import { useMyCompanyQuery } from "../features/companies/useMyCompanyQuery";
 import { Button } from "./ui/button";
 
 function navClass(isActive: boolean) {
-  return isActive ? "w-full justify-start shadow-sm" : "w-full justify-start";
+  return isActive
+    ? "w-full justify-start gap-2 bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+    : "w-full justify-start gap-2 bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50";
 }
 
-function SidebarLink({ to, label }: { to: string; label: string }) {
+function SidebarLink({
+  to,
+  icon,
+  label,
+  tone = "nav",
+  end = false
+}: {
+  to: string;
+  icon: string;
+  label: string;
+  tone?: "nav" | "primary";
+  end?: boolean;
+}) {
   return (
-    <NavLink to={to} end>
+    <NavLink to={to} end={end}>
       {({ isActive }) => (
-        <Button size="md" variant={isActive ? "primary" : "secondary"} className={navClass(isActive)}>
-          {label}
+        <Button
+          size="md"
+          variant={tone === "primary" ? "primary" : "secondary"}
+          className={tone === "primary" ? "w-full justify-start gap-2 shadow-sm" : navClass(isActive)}
+        >
+          <span aria-hidden className="text-base">
+            {icon}
+          </span>
+          <span className="truncate">{label}</span>
         </Button>
       )}
     </NavLink>
@@ -34,7 +55,7 @@ export function CompanyLayout() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <div className="truncate text-lg font-extrabold text-slate-900">
-              FERRETERIA: {companyName || "-"}
+              Tienda: {companyName || "—"}
             </div>
             <div className="truncate text-sm text-slate-600">
               {session?.user?.nombre ? `Usuario: ${session.user.nombre}` : ""}
@@ -57,17 +78,17 @@ export function CompanyLayout() {
         <aside className="grid gap-2">
           {primaryRole === "SELLER" ? (
             <>
-              <SidebarLink to={`/companies/${slug}/seller/sales/new`} label="Nueva venta" />
-              <SidebarLink to={`/companies/${slug}/seller/products`} label="Productos" />
-              <SidebarLink to={`/companies/${slug}/seller/sales`} label="Mis ventas" />
+              <SidebarLink to={`/companies/${slug}/seller/sales/new`} icon="💰" label="Vender" tone="primary" />
+              <SidebarLink to={`/companies/${slug}/seller/products`} icon="📦" label="Productos" />
+              <SidebarLink to={`/companies/${slug}/seller/sales`} icon="🧾" label="Mis ventas" />
             </>
           ) : (
             <>
-              <SidebarLink to={`/companies/${slug}/admin/dashboard`} label="Resumen General" />
-              <SidebarLink to={`/companies/${slug}/admin/sales`} label="Ventas" />
-              <SidebarLink to={`/companies/${slug}/admin/inventory`} label="Inventario" />
-              <SidebarLink to={`/companies/${slug}/admin/reports`} label="Reportes" />
-              <SidebarLink to={`/companies/${slug}/admin/users/sellers`} label="Vendedores" />
+              <SidebarLink to={`/companies/${slug}/admin/dashboard`} icon="🏠" label="Resumen" end />
+              <SidebarLink to={`/companies/${slug}/admin/sales`} icon="🧾" label="Ventas" />
+              <SidebarLink to={`/companies/${slug}/admin/inventory`} icon="📦" label="Inventario" />
+              <SidebarLink to={`/companies/${slug}/admin/reports`} icon="📊" label="Reportes" />
+              <SidebarLink to={`/companies/${slug}/admin/users/sellers`} icon="👥" label="Vendedores" />
             </>
           )}
         </aside>

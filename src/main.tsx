@@ -7,23 +7,26 @@ import './index.css'
 import { AuthProvider } from './features/auth/auth.context'
 import { queryClient } from './app/queryClient'
 import { router } from './app/router'
+import { ToastProvider } from './components/ui/toast'
 
 const googleClientId = String(import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      {googleClientId ? (
-        <GoogleOAuthProvider clientId={googleClientId}>
+      <ToastProvider>
+        {googleClientId ? (
+          <GoogleOAuthProvider clientId={googleClientId}>
+            <AuthProvider>
+              <RouterProvider router={router} />
+            </AuthProvider>
+          </GoogleOAuthProvider>
+        ) : (
           <AuthProvider>
             <RouterProvider router={router} />
           </AuthProvider>
-        </GoogleOAuthProvider>
-      ) : (
-        <AuthProvider>
-          <RouterProvider router={router} />
-        </AuthProvider>
-      )}
+        )}
+      </ToastProvider>
     </QueryClientProvider>
   </StrictMode>,
 )
